@@ -257,6 +257,10 @@ void loop()
 
     reportHeap(); // Display available RAM on heap
 
+#ifdef COMPILE_BT
+    bluetoothUpdate(); // Check for BLE connections (polled since BleSerial v2 removed callbacks)
+#endif
+
     // Force exit command mode if Bluetooth link is dropped
     if (btPrintEchoExit == true)
     {

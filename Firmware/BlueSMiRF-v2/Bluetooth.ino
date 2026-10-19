@@ -124,22 +124,24 @@ void bluetoothBegin()
     }
 
     // Set PIN so we can connect to older BT devices, but not require a PIN for modern device pairing
-    // See issue: https://github.com/sparkfun/SparkFun_RTK_Firmware/issues/5
-    // https://github.com/espressif/esp-idf/issues/1541
+    // Only configure classic Bluetooth security params when SPP is active
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    esp_bt_sp_param_t param_type = ESP_BT_SP_IOCAP_MODE;
+    if (settings.btType == BLUETOOTH_RADIO_SPP)
+    {
+        esp_bt_sp_param_t param_type = ESP_BT_SP_IOCAP_MODE;
 
-    esp_bt_io_cap_t iocap = ESP_BT_IO_CAP_NONE; // Requires pin 1234 on old BT dongle, No prompt on new BT dongle
+        esp_bt_io_cap_t iocap = ESP_BT_IO_CAP_NONE; // Requires pin 1234 on old BT dongle, No prompt on new BT dongle
 
-    esp_bt_gap_set_security_param(param_type, &iocap, sizeof(uint8_t));
+        esp_bt_gap_set_security_param(param_type, &iocap, sizeof(uint8_t));
 
-    esp_bt_pin_type_t pin_type = ESP_BT_PIN_TYPE_FIXED;
-    esp_bt_pin_code_t pin_code;
-    pin_code[0] = settings.btPin[0];
-    pin_code[1] = settings.btPin[1];
-    pin_code[2] = settings.btPin[2];
-    pin_code[3] = settings.btPin[3];
-    esp_bt_gap_set_pin(pin_type, 4, pin_code);
+        esp_bt_pin_type_t pin_type = ESP_BT_PIN_TYPE_FIXED;
+        esp_bt_pin_code_t pin_code;
+        pin_code[0] = settings.btPin[0];
+        pin_code[1] = settings.btPin[1];
+        pin_code[2] = settings.btPin[2];
+        pin_code[3] = settings.btPin[3];
+        esp_bt_gap_set_pin(pin_type, 4, pin_code);
+    }
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     bluetoothStartTasks();
@@ -444,6 +446,45 @@ void bluetoothCallback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 
         bluetoothState = BT_NOTCONNECTED;
         ledState = LED_NOTCONNECTED;
+    }
+}
+
+// Check if Bluetooth is connected (used especially for BLE where callbacks were removed in BleSerial v2)
+void bluetoothUpdate()
+{
+    if (bluetoothState == BT_OFF || bluetoothSerial == nullptr)
+        return;
+
+    static uint32_t lastCheck = 0;
+    if (millis() - lastCheck > 100)
+    {
+        lastCheck = millis();
+
+        // For BLE, we poll connected() since BLE callbacks are not available in BleSerial v2
+        if (settings.btType == BLUETOOTH_RADIO_BLE)
+        {
+            bool isConn = bluetoothSerial->connected();
+            if ((bluetoothState == BT_NOTCONNECTED) && isConn)
+            {
+                if (settings.debugBluetooth)
+                    systemPrintln("BLE client Connected");
+
+                bluetoothState = BT_CONNECTED;
+                ledState = LED_CONNECTED;
+            }
+            else if ((bluetoothState == BT_CONNECTED) && !isConn)
+            {
+                if (settings.debugBluetooth)
+                    systemPrintln("BLE client disconnected");
+
+                btPrintEcho = false;
+                btPrintEchoExit = true; // Force exit command mode
+                printEndpoint = PRINT_ENDPOINT_SERIAL;
+
+                bluetoothState = BT_NOTCONNECTED;
+                ledState = LED_NOTCONNECTED;
+            }
+        }
     }
 }
 

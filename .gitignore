@@ -2,6 +2,10 @@
 ## SparkFun Useful stuff
 #################
 
+node_modules/
+dist/
+bun.lock
+
 ## AVR Development
 *.eep
 *.elf

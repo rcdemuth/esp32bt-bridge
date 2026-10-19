@@ -161,7 +161,8 @@ class BTLESerial : public virtual BTSerialInterface, public BleSerial
 
     void disconnect()
     {
-        Server->disconnect(Server->getConnId());
+        // Server->disconnect(Server->getConnId());
+        // No longer used in v2 of BleSerial
     }
 
     void end()
@@ -181,7 +182,6 @@ class BTLESerial : public virtual BTSerialInterface, public BleSerial
 
     esp_err_t register_callback(esp_spp_cb_t callback)
     {
-        connectionCallback = callback;
         return ESP_OK;
     }
 
@@ -220,17 +220,18 @@ class BTLESerial : public virtual BTSerialInterface, public BleSerial
         BleSerial::flush();
     }
 
+    // Callbacks removed in v2 of BleSerial. Using polled connected() in bluetoothUpdate()
     // override BLEServerCallbacks
-    void onConnect(BLEServer *pServer)
-    {
-        connectionCallback(ESP_SPP_SRV_OPEN_EVT, nullptr);
-    }
+    // void onConnect(BLEServer *pServer)
+    // {
+    //     connectionCallback(ESP_SPP_SRV_OPEN_EVT, nullptr); // Trigger callback to bluetoothCallback()
+    // }
 
-    void onDisconnect(BLEServer *pServer)
-    {
-        connectionCallback(ESP_SPP_CLOSE_EVT, nullptr);
-        Server->startAdvertising();
-    }
+    // void onDisconnect(BLEServer *pServer)
+    // {
+    //     connectionCallback(ESP_SPP_CLOSE_EVT, nullptr); // Trigger callback to bluetoothCallback()
+    //     // Server->startAdvertising(); // No longer used in v2 of BleSerial
+    // }
 
   private:
     esp_spp_cb_t connectionCallback;

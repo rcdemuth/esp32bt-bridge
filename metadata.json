@@ -1,0 +1,8 @@
+{
+  "name": "SparkFun BlueSMiRF v2",
+  "description": "SparkFun BlueSMiRF v2 wireless Bluetooth serial link companion app, AT command configurator, interactive terminal emulator, and hardware guide.",
+  "version": "1.0.0",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

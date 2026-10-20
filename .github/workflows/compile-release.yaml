@@ -1,11 +1,11 @@
-      - name: Create GitHub Release and Upload Binary
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "v${{ env.FIRMWARE_VERSION_MAJOR }}.${{ env.FIRMWARE_VERSION_MINOR }}-${{ steps.date.outputs.date }}"
-          name: "BlueSMiRF Firmware Release ${{ steps.dateNoScores.outputs.dateNoScores }}"
-          body: "Automated compilation build from branch: ${{ env.BRANCH }}"
-          draft: false
-          prerelease: ${{ env.BRANCH != 'main' }}
-          files: ./Firmware/BlueSMiRF-v2/build/esp32.esp32.esp32/${{ env.FILENAME_PREFIX }}${{ env.FILE_ENDING_UNDERSCORE }}.bin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub!
+name: Create GitHub Release and Upload Binary
+      uses: softprops/action-gh-release@v2
+      with:
+            tag_name: "v${{ env.FIRMWARE_VERSION_MAJOR }}.${{ env.FIRMWARE_VERSION_MINOR }}-${{ steps.date.outputs.date }}"
+            name: "BlueSMiRF Firmware Release ${{ steps.dateNoScores.outputs.dateNoScores }}"
+            body: "Automated compilation build from branch: ${{ env.BRANCH }}"
+            draft: false
+            prerelease: ${{ env.BRANCH != 'main' }}
+            files: ./Firmware/BlueSMiRF-v2/build/esp32.esp32.esp32/${{ env.FILENAME_PREFIX }}${{ env.FILE_ENDING_UNDERSCORE }}.bin
+      env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub!

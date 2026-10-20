@@ -1,0 +1,14 @@
+name: Commit Binary Directly to This Repo
+  run: |
+    # Copy the compiled binary out to your target root folder or assets path
+    mkdir -p compiled_binaries
+    cp ./Firmware/BlueSMiRF-v2/build/esp32.esp32.esp32/${{ env.FILENAME_PREFIX }}${{ env.FILE_ENDING_UNDERSCORE }}.bin ./compiled_binaries/
+    
+    # Setup Git user identity using the generic GitHub Actions Bot profile
+    git config --global user.name "github-actions[bot]"
+    git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    
+    # Stage, commit, and push using native workflow environment permissions
+    git add compiled_binaries/*
+    git commit -m "Automated build artifact update: ${{ steps.dateNoScores.outputs.dateNoScores }}"
+    git push

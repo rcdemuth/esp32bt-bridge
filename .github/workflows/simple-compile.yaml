@@ -1,0 +1,35 @@
+name: Compile ESP32 Firmware
+
+on:
+  push:
+    branches:
+      - main
+      - release_candidate
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Clone the repository into the runner environment
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Arduino CLI, ESP32 board index, and compile the firmware
+      - name: Compile ESP32 Sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          # Use standard ESP32 Dev Module FQBN (or replace with target variant if specific)
+          fqbn: "esp32:esp32:esp32"
+          
+          # Provide the Espressif board package index link
+          platforms: |
+            - name: "esp32:esp32"
+              source-url: "https://githubusercontent.com"
+          
+          # Target the specific Firmware directory containing the sketch files
+          sketch-paths: |
+            ./Firmware

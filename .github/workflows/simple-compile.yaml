@@ -18,18 +18,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Arduino CLI, ESP32 board index, and compile the firmware
+      # Step 2: Set up Arduino CLI
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      # Step 3: Install ESP32 core using explicit CLI commands for reliability
+      - name: Install ESP32 Platform
+        run: |
+          arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core install esp32:esp32 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+
+      # Step 4: Compile the sketch
       - name: Compile ESP32 Sketch
         uses: arduino/compile-sketches@v1
         with:
-          # Use standard ESP32 Dev Module FQBN (or replace with target variant if specific)
           fqbn: "esp32:esp32:esp32"
-          
-          # Provide the Espressif board package index link
-          platforms: |
-            - name: "esp32:esp32"
-              source-url: "https://espressif.github.io/arduino-esp32/package_esp32_index.json"
-          
-          # Target the specific Firmware directory containing the sketch files
           sketch-paths: |
             ./Firmware
